@@ -1,0 +1,1386 @@
+{
+	"info": {
+		"_postman_id": "4d7fdbf3-1755-4daa-b191-3fffb559e3d6",
+		"name": "API-Test2021",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "POST Call",
+			"item": [
+				{
+					"name": "Sign Up",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let date = Date.now();\r",
+									"//let email = 'shah'+date+'@gmail.com';\r",
+									"//pm.environment.set('UserEmail',email);\r",
+									"console.log(date);\r",
+									"let fn=pm.variables.replaceIn(\"{{$randomFirstName}}\");\r",
+									"pm.environment.set('firstName',fn);\r",
+									"//pm.environment.set(\"firstName\",pm.variables.replaceIn(\"{{$randomFirstName}}\"));\r",
+									"pm.environment.set(\"lastName\",pm.variables.replaceIn(\"{{$randomLastName}}\"));\r",
+									"pm.environment.set(\"email\",pm.variables.replaceIn(\"{{$randomEmail}}\"));\r",
+									"let pass = Math.random().toString(36).substring(2,9)+ Math.random().toString(5).substring(2,5);\r",
+									"pm.environment.set(\"password\",pass);\r",
+									"pm.environment.set('year',_.random(1950,2014));\r",
+									"pm.environment.set('day',_.random(1,31));\r",
+									"pm.environment.set('month',_.random(1,12));\r",
+									"const genderList=['male','female'];\r",
+									"const genderRandom=Math.floor(Math.random()*genderList.length);\r",
+									"\r",
+									"pm.environment.set('gen',genderList[genderRandom]);\r",
+									"console.log(pass);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response.success);\r",
+									"let ID=pm.variables.replaceIn(response.id);\r",
+									"pm.environment.set('sid',ID);\r",
+									"pm.test('Verify status',function(){\r",
+									"    pm.response.to.have.status(201);\r",
+									"})\r",
+									"pm.test('Success should be true',function(){\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('Message should be registration success',function(){\r",
+									"    pm.expect(response.message).to.eql('Registration Success');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{firstName}}\",\r\n    \"lastName\": \"{{lastName}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\",\r\n    \"confirmPassword\": \"{{password}}\",\r\n    \"dob\": {\r\n        \"year\": {{year}},\r\n        \"month\": {{month}},\r\n        \"day\": {{day}}\r\n    },\r\n    \"gender\": \"{{gen}}\",\r\n    \"agree\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}signup",
+							"host": [
+								"{{baseurl}}signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Call",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response);\r",
+									"console.log(response.data.firstName);\r",
+									"pm.test('verifying student information', function(){\r",
+									"\r",
+									"pm.expect(response.status).to.eql(200);\r",
+									"pm.expect(response.message).to.eql(\"Student Found\");\r",
+									"pm.expect(response.data.firstName).to.eql(environment.firstName);\r",
+									" pm.expect(response.data.lastName).to.eql(environment.lastName);\r",
+									" pm.expect(response.data.studentId).to.eql(environment.sid);\r",
+									" pm.expect(response.data.email).to.eql(environment.email);\r",
+									" pm.expect(response.data.gender).to.eql(environment.gen);\r",
+									"//   pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									" pm.expect(response.data.agree).to.eql(true);\r",
+									"})\r",
+									"\r",
+									"if(environment.day < 10 && environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.day < 10){\r",
+									"    pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"else{\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"\r",
+									"console.log(environment.day);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json(); \r",
+									"console.log(response);\r",
+									"let token=pm.variables.replaceIn(response.token);\r",
+									"pm.environment.set('tk', token);\r",
+									"pm.test('Sign in information',function(){\r",
+									"\r",
+									"\r",
+									"pm.expect(response.success).to.eql(true);\r",
+									"\r",
+									"})\r",
+									"pm.test('Check response status',function(){\r",
+									"\r",
+									"pm.response.to.have.status(200);\r",
+									"\r",
+									"})\r",
+									"pm.test('Verify message should be login success',function(){\r",
+									"\r",
+									"pm.expect(response.message).to.eql('Login Success');\r",
+									"})\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9xYS50YWx0ZWt0Yy5jb20iLCJhdWQiOiJUSEVfQVVESUVOQ0UiLCJpYXQiOjE2MTY5NjA5NTAsIm5iZiI6MTYxNjk2MDk2MCwiZXhwIjoxNjE3MDQ3MzUwLCJpc19hZG1pbiI6ZmFsc2UsImRhdGEiOnsiaWQiOiIyNTkiLCJmaXJzdF9uYW1lIjoiSmhvbiIsImxhc3RfbmFtZSI6IkRvZSIsImVtYWlsIjoiamhvbi5kb2U0NUBnbWFpbC5jb20iLCJzdHVkZW50SWQiOiJUVEM3ZkswdCJ9fQ.WeB0gBhJydX1TOvXrMhr0hr1ywjgpKhQgh3UtuB4jUM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\" : \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}login",
+							"host": [
+								"{{baseurl}}login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PUT call",
+			"item": [
+				{
+					"name": "Update Information",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let gt=pm.environment.get(\"firstName\");\r",
+									"pm.environment.get(\"tk\");\r",
+									"console.log(gt+\"sd\");\r",
+									"pm.environment.set(\"firstName2\",pm.variables.replaceIn(\"{{$randomFirstName}}\"));\r",
+									"pm.environment.set(\"email1\",pm.variables.replaceIn(\"{{$randomEmail}}\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response.success);\r",
+									"pm.test('Check Status is 200',function(){\r",
+									"\r",
+									"   pm.response.to.have.status(200); \r",
+									"})\r",
+									"pm.test('Success should be true',function(){\r",
+									"\r",
+									"pm.expect(response.success).to.eql(true);\r",
+									"\r",
+									"})\r",
+									"pm.test('Message should be Update success',function(){\r",
+									"\r",
+									"pm.expect(response.message).to.eql('Update success');\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tk}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{firstName2}}\",\r\n    \"lastName\": \"{{lastName}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"dob\": {\r\n        \"year\": {{year}},\r\n        \"month\": {{month}},\r\n        \"day\": {{day}}\r\n    },\r\n    \"gender\": \"male\",\r\n    \"agree\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response);\r",
+									"console.log(response.data.firstName);\r",
+									"pm.test('verifying api response status', function(){\r",
+									"\r",
+									"pm.expect(response.status).to.eql(200);\r",
+									"})\r",
+									"pm.test('verifying message ', function(){\r",
+									"pm.expect(response.message).to.eql(\"Student Found\");\r",
+									"})\r",
+									"pm.test('verifying student firstname', function(){\r",
+									"pm.expect(response.data.firstName).to.eql(environment.firstName);\r",
+									"})\r",
+									"pm.test('verifying student lastname', function(){\r",
+									" pm.expect(response.data.lastName).to.eql(environment.lastName);\r",
+									" })\r",
+									" pm.test('verifying student ID', function(){\r",
+									" pm.expect(response.data.studentId).to.eql(environment.sid);\r",
+									" })\r",
+									" pm.test('verifying student email', function(){\r",
+									" pm.expect(response.data.email).to.eql(environment.email);\r",
+									" })\r",
+									" pm.test('verifying student gender', function(){\r",
+									" pm.expect(response.data.gender).to.eql(environment.gen);\r",
+									" })\r",
+									" pm.test('verifying student checkbox', function(){\r",
+									"//   pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									" pm.expect(response.data.agree).to.eql(true);\r",
+									"})\r",
+									"pm.test('verifying DOB',function(){\r",
+									"if(environment.day < 10 && environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.day < 10){\r",
+									"    pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"else{\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PATCH Call",
+			"item": [
+				{
+					"name": "Change Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"pm.test('Verify response status',function(){\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"pm.test('verify success as true',function(){\r",
+									"\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('verify message as Password update success',function(){\r",
+									"\r",
+									"    pm.expect(response.message).to.eql('Password update success');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tk}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\"  : \"1234567\",\r\n    \"confirmPassword\"  : \"1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}updatePassword/{{sid}}",
+							"host": [
+								"{{baseurl}}updatePassword"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response.status);\r",
+									"pm.test('Verify success is true',function(){\r",
+									"\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('Verify status code is 200',function(){\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"pm.test('Verify message as Login Success',function(){\r",
+									"\r",
+									"    pm.expect(response.message).to.eql('Login Success');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\" : \"1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}login",
+							"host": [
+								"{{baseurl}}login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DELETE Information",
+			"item": [
+				{
+					"name": "Delete Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"pm.test('Success is true',function(){\r",
+									"\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('Message is Data Deleted',function(){\r",
+									"\r",
+									"    pm.expect(response.messages).to.eql('Data Deleted');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tk}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"pm.test('Status should be 404',function(){\r",
+									"\r",
+									"    pm.expect(response.status).to.eql(404);\r",
+									"})\r",
+									"pm.test('Error code should be 404',function(){\r",
+									"\r",
+									"    pm.expect(response.error).to.eql(404);\r",
+									"})\r",
+									"pm.test('verify delete message',function(){\r",
+									"\r",
+									"    pm.expect(response.messages.error).to.eql('No Student Found with id'+\" \" +environment.sid);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "End To End Call",
+			"item": [
+				{
+					"name": "Sign Up",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Jhon\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"jhon.doe45@gmail.com\",\r\n    \"password\": \"123456\",\r\n    \"confirmPassword\": \"123456\",\r\n    \"dob\": {\r\n        \"year\": 2013,\r\n        \"month\": 12,\r\n        \"day\": 31\r\n    },\r\n    \"gender\": \"male\",\r\n    \"agree\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://qa.taltektc.com/api/signup",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Call",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://qa.taltektc.com/api/student/TTCoKAmi",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"student",
+								"TTCoKAmi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"jhon.doe45@gmail.com\",\r\n    \"password\" : \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://qa.taltektc.com/api/login",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9xYS50YWx0ZWt0Yy5jb20iLCJhdWQiOiJUSEVfQVVESUVOQ0UiLCJpYXQiOjE2MTY4OTgxODksIm5iZiI6MTYxNjg5ODE5OSwiZXhwIjoxNjE2OTg0NTg5LCJpc19hZG1pbiI6ZmFsc2UsImRhdGEiOnsiaWQiOiIxNTIiLCJmaXJzdF9uYW1lIjoiSmhvbiIsImxhc3RfbmFtZSI6IkRvZSIsImVtYWlsIjoiamhvbi5kb2U0NUBnbWFpbC5jb20iLCJzdHVkZW50SWQiOiJUVENvS0FtaSJ9fQ.uFR6oc5_vH7y0nEGlefI1dU9tQwWemoCzBQhYGbSJcA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\" : \"Glidan\",\r\n    \"lastName\" : \"Dell\",\r\n    \"email\"     : \"jhon.doe45@gmail.com\",\r\n    \"dob\"       : {\r\n        \"year\"      : 2013,\r\n        \"month\"     : 12,\r\n        \"day\"       : 31\r\n    },\r\n    \"gender\"    : \"female\",\r\n    \"agree\"     : true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://qa.taltektc.com/api/student/TTCoKAmi",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"student",
+								"TTCoKAmi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Update",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://qa.taltektc.com/api/student/TTCoKAmi",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"student",
+								"TTCoKAmi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9xYS50YWx0ZWt0Yy5jb20iLCJhdWQiOiJUSEVfQVVESUVOQ0UiLCJpYXQiOjE2MTY4OTgxODksIm5iZiI6MTYxNjg5ODE5OSwiZXhwIjoxNjE2OTg0NTg5LCJpc19hZG1pbiI6ZmFsc2UsImRhdGEiOnsiaWQiOiIxNTIiLCJmaXJzdF9uYW1lIjoiSmhvbiIsImxhc3RfbmFtZSI6IkRvZSIsImVtYWlsIjoiamhvbi5kb2U0NUBnbWFpbC5jb20iLCJzdHVkZW50SWQiOiJUVENvS0FtaSJ9fQ.uFR6oc5_vH7y0nEGlefI1dU9tQwWemoCzBQhYGbSJcA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\"  : \"1234567\",\r\n    \"confirmPassword\"  : \"1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://qa.taltektc.com/api/updatePassword/TTCoKAmi",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"updatePassword",
+								"TTCoKAmi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9xYS50YWx0ZWt0Yy5jb20iLCJhdWQiOiJUSEVfQVVESUVOQ0UiLCJpYXQiOjE2MTY4OTgxODksIm5iZiI6MTYxNjg5ODE5OSwiZXhwIjoxNjE2OTg0NTg5LCJpc19hZG1pbiI6ZmFsc2UsImRhdGEiOnsiaWQiOiIxNTIiLCJmaXJzdF9uYW1lIjoiSmhvbiIsImxhc3RfbmFtZSI6IkRvZSIsImVtYWlsIjoiamhvbi5kb2U0NUBnbWFpbC5jb20iLCJzdHVkZW50SWQiOiJUVENvS0FtaSJ9fQ.uFR6oc5_vH7y0nEGlefI1dU9tQwWemoCzBQhYGbSJcA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://qa.taltektc.com/api/student/TTCoKAmi",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"student",
+								"TTCoKAmi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://qa.taltektc.com/api/student/TTCoKAmi",
+							"protocol": "http",
+							"host": [
+								"qa",
+								"taltektc",
+								"com"
+							],
+							"path": [
+								"api",
+								"student",
+								"TTCoKAmi"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PostMan BDD",
+			"item": [
+				{
+					"name": "http://bigstickcarpet.com/postman-bdd/dist/postman-bdd.js",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://bigstickcarpet.com/postman-bdd/dist/postman-bdd.js",
+							"protocol": "http",
+							"host": [
+								"bigstickcarpet",
+								"com"
+							],
+							"path": [
+								"postman-bdd",
+								"dist",
+								"postman-bdd.js"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Automated e2e",
+			"item": [
+				{
+					"name": "Sign Up",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let date = Date.now();\r",
+									"//let email = 'shah'+date+'@gmail.com';\r",
+									"//pm.environment.set('UserEmail',email);\r",
+									"console.log(date);\r",
+									"let fn=pm.variables.replaceIn(\"{{$randomFirstName}}\");\r",
+									"pm.environment.set('firstName',fn);\r",
+									"//pm.environment.set(\"firstName\",pm.variables.replaceIn(\"{{$randomFirstName}}\"));\r",
+									"pm.environment.set(\"lastName\",pm.variables.replaceIn(\"{{$randomLastName}}\"));\r",
+									"pm.environment.set(\"email\",pm.variables.replaceIn(\"{{$randomEmail}}\"));\r",
+									"let pass = Math.random().toString(36).substring(2,9)+ Math.random().toString(5).substring(2,5);\r",
+									"pm.environment.set(\"password\",pass);\r",
+									"pm.environment.set('year',_.random(1950,2014));\r",
+									"pm.environment.set('day',_.random(1,31));\r",
+									"pm.environment.set('month',_.random(1,12));\r",
+									"const genderList=['male','female'];\r",
+									"const genderRandom=Math.floor(Math.random()*genderList.length);\r",
+									"\r",
+									"pm.environment.set('gen',genderList[genderRandom]);\r",
+									"console.log(pass);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response.success);\r",
+									"let ID=pm.variables.replaceIn(response.id);\r",
+									"pm.environment.set('sid',ID);\r",
+									"pm.test('Verify status',function(){\r",
+									"    pm.response.to.have.status(201);\r",
+									"})\r",
+									"pm.test('Success should be true',function(){\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('Message should be registration success',function(){\r",
+									"    pm.expect(response.message).to.eql('Registration Success');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{firstName}}\",\r\n    \"lastName\": \"{{lastName}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\",\r\n    \"confirmPassword\": \"{{password}}\",\r\n    \"dob\": {\r\n        \"year\": {{year}},\r\n        \"month\": {{month}},\r\n        \"day\": {{day}}\r\n    },\r\n    \"gender\": \"{{gen}}\",\r\n    \"agree\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}signup",
+							"host": [
+								"{{baseurl}}signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Call",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response);\r",
+									"console.log(response.data.firstName);\r",
+									"pm.test('verifying student information', function(){\r",
+									"\r",
+									"pm.expect(response.status).to.eql(200);\r",
+									"pm.expect(response.message).to.eql(\"Student Found\");\r",
+									"pm.expect(response.data.firstName).to.eql(environment.firstName);\r",
+									" pm.expect(response.data.lastName).to.eql(environment.lastName);\r",
+									" pm.expect(response.data.studentId).to.eql(environment.sid);\r",
+									" pm.expect(response.data.email).to.eql(environment.email);\r",
+									" pm.expect(response.data.gender).to.eql(environment.gen);\r",
+									"//   pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									" pm.expect(response.data.agree).to.eql(true);\r",
+									"})\r",
+									"\r",
+									"if(environment.day < 10 && environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.day < 10){\r",
+									"    pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"else{\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"\r",
+									"console.log(environment.day);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json(); \r",
+									"let token=pm.variables.replaceIn(response.token);\r",
+									"pm.environment.set('tk', token);\r",
+									"pm.test('Sign in information',function(){\r",
+									"\r",
+									"\r",
+									"pm.expect(response.success).to.eql(true);\r",
+									"\r",
+									"})\r",
+									"pm.test('Check response status',function(){\r",
+									"    \r",
+									"pm.response.to.have.status(200);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9xYS50YWx0ZWt0Yy5jb20iLCJhdWQiOiJUSEVfQVVESUVOQ0UiLCJpYXQiOjE2MTY5NjA5NTAsIm5iZiI6MTYxNjk2MDk2MCwiZXhwIjoxNjE3MDQ3MzUwLCJpc19hZG1pbiI6ZmFsc2UsImRhdGEiOnsiaWQiOiIyNTkiLCJmaXJzdF9uYW1lIjoiSmhvbiIsImxhc3RfbmFtZSI6IkRvZSIsImVtYWlsIjoiamhvbi5kb2U0NUBnbWFpbC5jb20iLCJzdHVkZW50SWQiOiJUVEM3ZkswdCJ9fQ.WeB0gBhJydX1TOvXrMhr0hr1ywjgpKhQgh3UtuB4jUM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\" : \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}login",
+							"host": [
+								"{{baseurl}}login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Information",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let gt=pm.environment.get(\"firstName\");\r",
+									"pm.environment.get(\"tk\");\r",
+									"console.log(gt+\"sd\");\r",
+									"pm.environment.set(\"email1\",pm.variables.replaceIn(\"{{$randomEmail}}\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response.success);\r",
+									"pm.test('Check Status is 200',function(){\r",
+									"\r",
+									"   pm.response.to.have.status(200); \r",
+									"})\r",
+									"pm.test('Success should be true',function(){\r",
+									"\r",
+									"pm.expect(response.success).to.eql(true);\r",
+									"\r",
+									"})\r",
+									"pm.test('Message should be Update success',function(){\r",
+									"\r",
+									"pm.expect(response.message).to.eql('Update success');\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tk}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{firstName}}\",\r\n    \"lastName\": \"{{lastName}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"dob\": {\r\n        \"year\": {{year}},\r\n        \"month\": {{month}},\r\n        \"day\": {{day}}\r\n    },\r\n    \"gender\": \"male\",\r\n    \"agree\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"console.log(response);\r",
+									"console.log(response.data.firstName);\r",
+									"pm.test('verifying api response status', function(){\r",
+									"\r",
+									"pm.expect(response.status).to.eql(200);\r",
+									"})\r",
+									"pm.test('verifying message ', function(){\r",
+									"pm.expect(response.message).to.eql(\"Student Found\");\r",
+									"})\r",
+									"pm.test('verifying student firstname', function(){\r",
+									"pm.expect(response.data.firstName).to.eql(environment.firstName);\r",
+									"})\r",
+									"pm.test('verifying student lastname', function(){\r",
+									" pm.expect(response.data.lastName).to.eql(environment.lastName);\r",
+									" })\r",
+									" pm.test('verifying student ID', function(){\r",
+									" pm.expect(response.data.studentId).to.eql(environment.sid);\r",
+									" })\r",
+									" pm.test('verifying student email', function(){\r",
+									" pm.expect(response.data.email).to.eql(environment.email);\r",
+									" })\r",
+									" pm.test('verifying student gender', function(){\r",
+									" pm.expect(response.data.gender).to.eql(\"male\");\r",
+									" })\r",
+									" pm.test('verifying student checkbox', function(){\r",
+									"//   pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									" pm.expect(response.data.agree).to.eql(true);\r",
+									"})\r",
+									"pm.test('verifying DOB',function(){\r",
+									"if(environment.day < 10 && environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.day < 10){\r",
+									"    pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+\"0\"+environment.day);\r",
+									"}\r",
+									"else if(environment.month < 10){\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+\"0\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"else{\r",
+									"      pm.expect(response.data.dob).to.eql(environment.year+\"-\"+environment.month+\"-\"+environment.day);\r",
+									"}\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"pm.test('Verify response status',function(){\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"pm.test('verify success as true',function(){\r",
+									"\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('verify message as Password update success',function(){\r",
+									"\r",
+									"    pm.expect(response.message).to.eql('Password update success');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tk}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\"  : \"1234567\",\r\n    \"confirmPassword\"  : \"1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}updatePassword/{{sid}}",
+							"host": [
+								"{{baseurl}}updatePassword"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"pm.test('Verify success is true',function(){\r",
+									"\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('Verify status code is 200',function(){\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"pm.test('Verify message as Login Success',function(){\r",
+									"\r",
+									"    pm.expect(response.message).to.eql('Login Success');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\" : \"1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}login",
+							"host": [
+								"{{baseurl}}login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"pm.test('Success is true',function(){\r",
+									"\r",
+									"    pm.expect(response.success).to.eql(true);\r",
+									"})\r",
+									"pm.test('Message is Data Deleted',function(){\r",
+									"\r",
+									"    pm.expect(response.messages).to.eql('Data Deleted');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tk}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response=pm.response.json();\r",
+									"pm.test('Status should be 404',function(){\r",
+									"\r",
+									"    pm.expect(response.status).to.eql(404);\r",
+									"})\r",
+									"pm.test('Error code should be 404',function(){\r",
+									"\r",
+									"    pm.expect(response.error).to.eql(404);\r",
+									"})\r",
+									"pm.test('verify delete message',function(){\r",
+									"\r",
+									"    pm.expect(response.messages.error).to.eql('No Student Found with id'+\" \" +environment.sid);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}student/{{sid}}",
+							"host": [
+								"{{baseurl}}student"
+							],
+							"path": [
+								"{{sid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
